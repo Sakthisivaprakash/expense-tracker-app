@@ -1,14 +1,21 @@
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Alert } from "react-native";
 import { getFromattedDate } from "../../util/date";
 import Button from "../UI/Button";
 import Input from "./Input";
 
-const ExpenseForm = ({submitButtonLabel, onCancel, onSubmit, defaultValues}) => {
+const ExpenseForm = ({
+  submitButtonLabel,
+  onCancel,
+  onSubmit,
+  defaultValues,
+}) => {
   const [inputValues, setInputValues] = useState({
-    amount: defaultValues ? defaultValues.amount.toString() : '',
-    date: defaultValues ? getFromattedDate(defaultValues.date) : getFromattedDate(new Date()),
-    description: defaultValues ? defaultValues.description : '',
+    amount: defaultValues ? defaultValues.amount.toString() : "",
+    date: defaultValues
+      ? getFromattedDate(defaultValues.date)
+      : getFromattedDate(new Date()),
+    description: defaultValues ? defaultValues.description : "",
   });
 
   const inputChangeHandler = (inputIdentifier, enteredValue) => {
@@ -22,12 +29,23 @@ const ExpenseForm = ({submitButtonLabel, onCancel, onSubmit, defaultValues}) => 
 
   const submitHandler = () => {
     const expenseData = {
-        amount: +inputValues.amount,
-        date: new Date(inputValues.date),
-        description: inputValues.description
+      amount: +inputValues.amount,
+      date: new Date(inputValues.date),
+      description: inputValues.description,
+    };
+
+    const amountIsValid = !isNaN(expenseData.amount) && expenseData.amount > 0;
+    const dateIsValid =
+      new Date(expenseData.date).toString() !== "Invalid Date";
+    const descriptionIsValid = expenseData.description.trim().length > 0;
+
+    if (!amountIsValid || !dateIsValid || !descriptionIsValid) {
+      Alert.alert("Invalid Input", "Please check your input values");
+      return;
     }
+
     onSubmit(expenseData);
-  }
+  };
 
   return (
     <View style={styles.form}>
@@ -101,7 +119,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 16
+    marginTop: 16,
   },
   button: {
     minWidth: 120,
